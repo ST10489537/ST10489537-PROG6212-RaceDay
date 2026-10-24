@@ -1,0 +1,24 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# Test results and coverage
+TestResults/
+*.coverage
+*.coveragexml
+
+# NuGet and misc
+*.nupkg
+.vscode/
+*.log
