@@ -21,6 +21,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<RaceDayDbContext>();
+    DbSeeder.Seed(db);
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
