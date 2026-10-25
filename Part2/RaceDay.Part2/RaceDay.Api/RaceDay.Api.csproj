@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="Data\" />
     <Folder Include="DTOs\" />
     <Folder Include="Filters\" />
     <Folder Include="Services\" />
