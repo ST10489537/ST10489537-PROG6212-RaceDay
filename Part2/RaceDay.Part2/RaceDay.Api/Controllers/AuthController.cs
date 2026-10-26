@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RaceDay.Api.Data;
 using RaceDay.Api.DTOs;
+using RaceDay.Api.Filters;
 using RaceDay.Api.Models;
 using RaceDay.Api.Services;
 
@@ -96,7 +97,9 @@ namespace RaceDay.Api.Controllers
 
 
         [HttpPost("logout")]
+        [SessionAuthorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

@@ -18,7 +18,11 @@ namespace RaceDay.Api.Controllers
             _db = db;
         }
 
-
+        /// <summary>
+        /// Returns the profile of the currently logged-in user.
+        /// </summary>
+        /// <response code="200">The user's profile (never includes the password).</response>
+        /// <response code="401">Not logged in, or the account no longer exists.</response>
         [HttpGet]
         [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -39,7 +43,14 @@ namespace RaceDay.Api.Controllers
             return Ok(ToProfile(user));
         }
 
-
+        /// <summary>
+        /// Updates the full name, phone number and profile picture URL of the currently logged-in user.
+        /// Email and role cannot be changed here.
+        /// </summary>
+        /// <param name="dto">The new full name, phone number and profile picture URL.</param>
+        /// <response code="200">The updated profile.</response>
+        /// <response code="400">Validation failed.</response>
+        /// <response code="401">Not logged in, or the account no longer exists.</response>
         [HttpPut]
         [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -60,6 +71,7 @@ namespace RaceDay.Api.Controllers
 
             user.FullName = dto.FullName.Trim();
             user.PhoneNumber = dto.PhoneNumber;
+            user.ProfilePictureUrl = dto.ProfilePictureUrl;
 
             await _db.SaveChangesAsync();
 
