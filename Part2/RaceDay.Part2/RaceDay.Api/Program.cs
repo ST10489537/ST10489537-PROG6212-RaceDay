@@ -1,17 +1,24 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+
+// Swagger UI (shows every endpoint with its XML comments)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
+});
 
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// NEW: session management (stores UserId and Role on the server for each logged-in user)
+// Session management (stores UserId and Role on the server for each logged-in user)
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -25,7 +32,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 using (var scope = app.Services.CreateScope())
@@ -36,7 +44,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 
-app.UseSession();  
+app.UseSession();   // must come before MapControllers
 
 app.UseAuthorization();
 
