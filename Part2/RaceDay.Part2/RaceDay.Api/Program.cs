@@ -1,11 +1,13 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+// Controllers (enums are read and written as text, e.g. "Run" instead of 0)
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 // Swagger UI (shows every endpoint with its XML comments)
 builder.Services.AddEndpointsApiExplorer();
@@ -29,15 +31,16 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-using (var scope = app.Services.CreateScope())
+// Seed sample data (skipped by the unit tests, which seed their own in-memory database)
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<RaceDayDbContext>();
     DbSeeder.Seed(db);
 }
@@ -51,3 +54,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Makes the Program class visible to the test project
+public partial class Program { }
