@@ -20,7 +20,6 @@ namespace RaceDay.Api.Controllers
             _config = config;
         }
 
-        
 
         [HttpPost("register")]
         [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status201Created)]
@@ -68,6 +67,40 @@ namespace RaceDay.Api.Controllers
             await _db.SaveChangesAsync();
 
             return StatusCode(StatusCodes.Status201Created, ToProfile(user, roleName));
+        }
+
+
+        [HttpPost("login")]
+        [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        {
+            var email = dto.Email.Trim().ToLowerInvariant();
+
+            var user = await _db.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            // Same message for "no such user" and "wrong password" so attackers can't tell which was wrong
+            if (user == null || !PasswordHasher.Verify(dto.Password, user.PasswordHash))
+                return Unauthorized(new { message = "Invalid email or password." });
+
+            // Start a fresh session, then store who the user is and what role they have
+            HttpContext.Session.Clear();
+            HttpContext.Session.SetInt32("UserId", user.UserID);
+            HttpContext.Session.SetString("Role", user.Role.RoleName);
+
+            return Ok(ToProfile(user, user.Role.RoleName));
+        }
+
+
+        [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return Ok(new { message = "Logged out." });
         }
 
         // Maps a User entity to the safe response DTO (never includes the password hash)
