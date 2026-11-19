@@ -1,0 +1,56 @@
+﻿@model UpdateProfileDto
+@{
+    ViewData["Title"] = "My profile";
+    var initial = string.IsNullOrWhiteSpace(Model.FullName) ? "?" : Model.FullName.Trim()[0].ToString().ToUpper();
+}
+
+<h1 class="h3 mb-4">My profile</h1>
+
+<div class="row g-4">
+    <div class="col-md-4 text-center">
+        @if (!string.IsNullOrWhiteSpace(Model.ProfilePictureUrl))
+        {
+            <img src="@Model.ProfilePictureUrl" class="profile-picture" alt="Profile picture" />
+        }
+        else
+        {
+            <div class="profile-placeholder">@initial</div>
+        }
+    </div>
+
+    <div class="col-md-8">
+        <dl class="row">
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">@ViewBag.Email</dd>
+            <dt class="col-sm-4">Role</dt>
+            <dd class="col-sm-8">@ViewBag.Role</dd>
+            <dt class="col-sm-4">Member since</dt>
+            <dd class="col-sm-8">@ViewBag.MemberSince</dd>
+        </dl>
+
+        <form asp-action="Index" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            @* Kept so saving the form does not remove the current picture. *@
+            <input asp-for="ProfilePictureUrl" type="hidden" />
+
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
