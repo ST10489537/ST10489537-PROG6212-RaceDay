@@ -1,0 +1,78 @@
+﻿@model CategoriesViewModel
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<a asp-controller="Organiser" asp-action="Events">&larr; Back to my events</a>
+<h1 class="h3 mt-2 mb-0">Categories</h1>
+<p class="text-muted">@Model.Event.Name &middot; @Model.Event.EventDate.ToString("dd MMM yyyy")</p>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        @if (!Model.Event.Categories.Any())
+        {
+            <div class="alert alert-info">This event has no categories yet. Add one using the form.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.Event.Categories)
+                        {
+                            <tr>
+                                <td>@c.Name</td>
+                                <td>@c.Description</td>
+                                <td class="text-end">
+                                    <a asp-action="Edit" asp-route-eventId="@Model.Event.EventID"
+                                       asp-route-id="@c.CategoryID" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form asp-action="Delete" asp-route-eventId="@Model.Event.EventID"
+                                          asp-route-id="@c.CategoryID" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete this category?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h5">Add a category</h2>
+                <form asp-action="Add" asp-route-eventId="@Model.Event.EventID" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="NewCategory.Name" class="form-label">Name</label>
+                        <input asp-for="NewCategory.Name" class="form-control" placeholder="e.g. Under 20, Senior, 21km" />
+                        <span asp-validation-for="NewCategory.Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NewCategory.Description" class="form-label">Description (optional)</label>
+                        <textarea asp-for="NewCategory.Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="NewCategory.Description" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add category</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
