@@ -1,0 +1,46 @@
+﻿@model List<ResultDto>
+@{
+    ViewData["Title"] = "My results";
+}
+
+<h1 class="h3 mb-3">My results</h1>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You have no results yet. Results appear here after an Organiser captures them for an event you entered.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Finish time</th>
+                    <th>Position</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>@r.EventName</td>
+                        <td>@r.EventDate.ToString("dd MMM yyyy")</td>
+                        <td>@r.CategoryName</td>
+                        <td><strong>@Formatting.FinishTime(r.FinishTime)</strong></td>
+                        <td>@Formatting.Ordinal(r.FinishPosition) out of @r.TotalFinishers</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
