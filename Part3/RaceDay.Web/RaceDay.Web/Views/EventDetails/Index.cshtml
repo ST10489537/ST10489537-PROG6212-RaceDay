@@ -1,0 +1,83 @@
+﻿@model EventDto
+@{
+    ViewData["Title"] = Model.Name;
+    var isPast = Model.EventDate < DateTime.Now;
+}
+
+<a asp-controller="Home" asp-action="Index">&larr; Back to events</a>
+
+<div class="mt-3 mb-4">
+    @if (!string.IsNullOrWhiteSpace(Model.BannerImageUrl))
+    {
+        <img src="@Model.BannerImageUrl" class="event-banner-large" alt="Banner for @Model.Name" />
+    }
+    else
+    {
+        <div class="event-banner event-banner-placeholder rounded">@Model.EventType</div>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <h1 class="h2">@Model.Name</h1>
+        <p>
+            <span class="badge bg-dark">@Model.EventType</span>
+            <span class="badge bg-secondary">@Model.DistanceKm.ToString("0.##") km</span>
+        </p>
+
+        <dl class="row">
+            <dt class="col-sm-3">Date</dt>
+            <dd class="col-sm-9">@Model.EventDate.ToString("dddd, dd MMMM yyyy HH:mm")</dd>
+            <dt class="col-sm-3">Location</dt>
+            <dd class="col-sm-9">@Model.Location</dd>
+            <dt class="col-sm-3">Organiser</dt>
+            <dd class="col-sm-9">@Model.OrganiserName</dd>
+        </dl>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <h2 class="h5">About this event</h2>
+            <p style="white-space: pre-line;">@Model.Description</p>
+        }
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h5">Enter this event</h2>
+
+                @if (isPast)
+                {
+                    <div class="alert alert-secondary mb-0">This event has already taken place.</div>
+                }
+                else if (!Model.Categories.Any())
+                {
+                    <div class="alert alert-info mb-0">The Organiser has not added any categories yet. Please check back soon.</div>
+                }
+                else
+                {
+                    <form asp-action="Enrol" asp-route-id="@Model.EventID" method="post">
+                        <p class="text-muted">Choose your category:</p>
+
+                        @foreach (var c in Model.Categories)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="CategoryId"
+                                       id="cat-@c.CategoryID" value="@c.CategoryID" required />
+                                <label class="form-check-label" for="cat-@c.CategoryID">
+                                    <strong>@c.Name</strong>
+                                    @if (!string.IsNullOrWhiteSpace(c.Description))
+                                    {
+                                        <span class="d-block small text-muted">@c.Description</span>
+                                    }
+                                </label>
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Enter event</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
