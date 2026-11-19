@@ -1,4 +1,4 @@
-﻿@model List<RaceDay.Web.Models.EventDto>
+﻿@model List<EventDto>
 @{
     ViewData["Title"] = "My events";
 }
@@ -40,7 +40,13 @@ else
                         <td>@ev.Location</td>
                         <td>@ev.EventType (@ev.DistanceKm km)</td>
                         <td class="text-end">@ev.EnrolmentCount</td>
-                        <td class="text-end">
+                        <td class="text-end text-nowrap">
+                            <a asp-controller="Categories" asp-action="Index" asp-route-eventId="@ev.EventID"
+                               class="btn btn-sm btn-outline-dark">Categories</a>
+                            <a asp-controller="EventEnrolments" asp-action="Index" asp-route-eventId="@ev.EventID"
+                               class="btn btn-sm btn-outline-dark">Enrolments</a>
+                            <a asp-controller="EventResults" asp-action="Index" asp-route-eventId="@ev.EventID"
+                               class="btn btn-sm btn-outline-dark">Results</a>
                             <a asp-action="EditEvent" asp-route-id="@ev.EventID"
                                class="btn btn-sm btn-outline-primary">Edit</a>
                             <form asp-action="DeleteEvent" asp-route-id="@ev.EventID" method="post"
