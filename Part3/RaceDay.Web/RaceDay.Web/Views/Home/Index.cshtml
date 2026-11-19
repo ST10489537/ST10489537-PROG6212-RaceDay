@@ -1,8 +1,70 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ParticipantHomeViewModel
+@{
+    ViewData["Title"] = "Upcoming events";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="raceday-hero rounded p-4 mb-4">
+    <h1 class="h2 mb-1">Find your next race</h1>
+    <p class="mb-0">Browse upcoming runs, walks and cycle events across South Africa.</p>
 </div>
+
+<form method="get" asp-action="Index" class="row g-2 mb-4">
+    <div class="col-md-5">
+        <input type="text" name="search" value="@Model.Search" class="form-control"
+               placeholder="Search by event name or location" />
+    </div>
+    <div class="col-md-4">
+        <select name="type" class="form-select">
+            <option value="">All event types</option>
+            @foreach (var t in Enum.GetValues<EventType>())
+            {
+                <option value="@t" selected="@(Model.Type == t)">@t</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3 d-grid d-md-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+    </div>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+@if (!Model.Events.Any())
+{
+    <div class="alert alert-info">No upcoming events match your search.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var ev in Model.Events)
+        {
+            <div class="col">
+                <div class="card h-100 event-card">
+                    @if (!string.IsNullOrWhiteSpace(ev.BannerImageUrl))
+                    {
+                        <img src="@ev.BannerImageUrl" class="event-banner" alt="Banner for @ev.Name" />
+                    }
+                    else
+                    {
+                        <div class="event-banner event-banner-placeholder">@ev.EventType</div>
+                    }
+                    <div class="card-body">
+                        <h2 class="h5 card-title">@ev.Name</h2>
+                        <p class="mb-1 text-muted">@ev.EventDate.ToString("ddd, dd MMM yyyy HH:mm")</p>
+                        <p class="mb-2">@ev.Location</p>
+                        <span class="badge bg-dark">@ev.EventType</span>
+                        <span class="badge bg-secondary">@ev.DistanceKm.ToString("0.##") km</span>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3">
+                        <a asp-controller="EventDetails" asp-action="Index" asp-route-id="@ev.EventID"
+                           class="btn btn-primary w-100">View details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
