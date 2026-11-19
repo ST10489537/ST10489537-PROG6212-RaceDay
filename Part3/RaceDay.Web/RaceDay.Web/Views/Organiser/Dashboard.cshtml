@@ -1,0 +1,100 @@
+﻿@model RaceDay.Web.Models.OrganiserDashboardViewModel
+@{
+    ViewData["Title"] = "Organiser dashboard";
+}
+
+<h1 class="h3 mb-4">Organiser dashboard</h1>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="display-6">@Model.TotalEvents</div>
+                <div class="text-muted">Events created</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="display-6">@Model.UpcomingCount</div>
+                <div class="text-muted">Upcoming events</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="display-6">@Model.TotalEnrolments</div>
+                <div class="text-muted">Total enrolments</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                @if (Model.NextEvent != null)
+                {
+                    <div class="fw-bold">@Model.NextEvent.Name</div>
+                    <div class="text-muted">@Model.NextEvent.EventDate.ToString("dd MMM yyyy")</div>
+                }
+                else
+                {
+                    <div class="text-muted">No upcoming events</div>
+                }
+                <div class="small text-muted mt-1">Next event</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5">Your events</h2>
+
+@if (!Model.Events.Any())
+{
+    <div class="alert alert-info">You have not created any events yet.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th class="text-end">Enrolments</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ev in Model.Events)
+                {
+                    <tr>
+                        <td>@ev.Name</td>
+                        <td>@ev.EventDate.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>@ev.Location</td>
+                        <td>@ev.EventType (@ev.DistanceKm km)</td>
+                        <td class="text-end">@ev.EnrolmentCount</td>
+                        <td>
+                            @if (ev.EventDate >= DateTime.Now)
+                            {
+                                <span class="badge bg-success">Upcoming</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Completed</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
