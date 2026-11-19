@@ -1,0 +1,11 @@
+﻿@model EnrolmentStatus
+@{
+    // Colour coding: green = Confirmed, amber = Pending, red = Cancelled.
+    var css = Model switch
+    {
+        EnrolmentStatus.Confirmed => "bg-success",
+        EnrolmentStatus.Pending => "bg-warning text-dark",
+        _ => "bg-danger"
+    };
+}
+<span class="badge @css">@Model</span>
