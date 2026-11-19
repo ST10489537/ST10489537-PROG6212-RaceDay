@@ -28,10 +28,14 @@
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Dashboard">Dashboard</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Events">Events</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Profile" asp-action="Index">Profile</a></li>
                         }
-                        else
+                        else if (role == Roles.Participant)
                         {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Events</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="MyEvents" asp-action="Index">My Events</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="MyResults" asp-action="Index">My Results</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Profile" asp-action="Index">Profile</a></li>
                         }
                     </ul>
                     <ul class="navbar-nav">
