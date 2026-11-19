@@ -1,25 +1,37 @@
-using Microsoft.AspNetCore.Mvc;
-using RaceDay.Web.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using RaceDay.Web.Helpers;
+using RaceDay.Web.Models;
 
-namespace RaceDay.Web.Controllers
+namespace RaceDay.Web.Controllers;
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+
+    public HomeController(ILogger<HomeController> logger)
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+        _logger = logger;
+    }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+    public IActionResult Index()
+    {
+        // Organisers go straight to their dashboard;
+        // everyone else sees the home page.
+        if (HttpContext.Session.GetString(SessionKeys.Role) == Roles.Organiser)
+            return RedirectToAction("Dashboard", "Organiser");
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        return View();
+    }
+
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

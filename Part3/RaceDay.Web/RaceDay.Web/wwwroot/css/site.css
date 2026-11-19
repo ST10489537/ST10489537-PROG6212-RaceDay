@@ -29,3 +29,35 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+/* RaceDay brand: energetic sporting theme */
+:root {
+    --raceday-orange: #ff5a1f;
+    --raceday-dark: #14213d;
+}
+
+.raceday-nav {
+    background-color: var(--raceday-dark);
+    border-bottom: 4px solid var(--raceday-orange);
+}
+
+    .raceday-nav .navbar-brand {
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--raceday-orange);
+    }
+
+.btn-primary {
+    background-color: var(--raceday-orange);
+    border-color: var(--raceday-orange);
+}
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: #e04a12;
+        border-color: #e04a12;
+    }
+
+a {
+    color: var(--raceday-orange);
+}
