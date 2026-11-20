@@ -41,12 +41,37 @@ public class ProfileController : AppController
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Index(UpdateProfileDto model)
+    public async Task<IActionResult> Index(UpdateProfileDto model, IFormFile? pictureFile)
     {
         if (!ModelState.IsValid)
         {
             await LoadReadOnlyDetailsAsync();
             return View(model);
+        }
+
+        // A new picture goes to the API, which stores it in Azure Blob Storage.
+        if (pictureFile != null && pictureFile.Length > 0)
+        {
+            var problem = ImageRules.Validate(pictureFile);
+            if (problem == null)
+            {
+                var upload = await _api.UploadImageAsync("api/uploads/profile-picture", pictureFile);
+
+                var expiredUpload = SessionExpired(upload);
+                if (expiredUpload != null) return expiredUpload;
+
+                if (upload.Success && upload.Data != null)
+                    model.ProfilePictureUrl = upload.Data.Url;
+                else
+                    problem = upload.Error ?? "We could not upload the picture. Please try again.";
+            }
+
+            if (problem != null)
+            {
+                await LoadReadOnlyDetailsAsync();
+                ModelState.AddModelError(string.Empty, problem);
+                return View(model);
+            }
         }
 
         var result = await _api.PutForStatusAsync("api/profile", model);

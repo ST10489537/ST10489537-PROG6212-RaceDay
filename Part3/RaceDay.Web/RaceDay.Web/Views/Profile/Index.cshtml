@@ -28,7 +28,7 @@
             <dd class="col-sm-8">@ViewBag.MemberSince</dd>
         </dl>
 
-        <form asp-action="Index" method="post" novalidate>
+        <form asp-action="Index" method="post" enctype="multipart/form-data" novalidate>
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <div class="mb-3">
@@ -41,6 +41,12 @@
                 <label asp-for="PhoneNumber" class="form-label"></label>
                 <input asp-for="PhoneNumber" class="form-control" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Profile picture</label>
+                <input type="file" name="pictureFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                <div class="form-text">JPG, PNG or WEBP, up to 5 MB.</div>
             </div>
 
             @* Kept so saving the form does not remove the current picture. *@
