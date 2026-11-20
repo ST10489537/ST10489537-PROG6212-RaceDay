@@ -2,6 +2,8 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.Api.Data;
+using RaceDay.Api.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,8 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Azure Blob Storage for uploaded images
+builder.Services.AddSingleton<IImageStorageService, BlobImageStorageService>();
 
 // Session management (stores UserId and Role on the server for each logged-in user)
 builder.Services.AddDistributedMemoryCache();
