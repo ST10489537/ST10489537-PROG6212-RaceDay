@@ -2,6 +2,8 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net.Http.Headers;
+using RaceDay.Web.Models;
 
 namespace RaceDay.Web.Services;
 
@@ -60,6 +62,42 @@ public class ApiService
     public Task<ApiResult<string>> DeleteForStatusAsync(string url) =>
         SendRawAsync(HttpMethod.Delete, url);
 
+    // Sends an image to one of the API's upload endpoints (multipart/form-data).
+    // The MVC app never talks to Azure: the API stores the file and returns its URL.
+    public async Task<ApiResult<UploadResultDto>> UploadImageAsync(string url, IFormFile file)
+    {
+        using var form = new MultipartFormDataContent();
+        await using var stream = file.OpenReadStream();
+        using var fileContent = new StreamContent(stream);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(
+            string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType);
+        form.Add(fileContent, "file", file.FileName);
+
+        var raw = await SendRawAsync(HttpMethod.Post, url, content: form);
+
+        var result = new ApiResult<UploadResultDto>
+        {
+            Success = raw.Success,
+            StatusCode = raw.StatusCode,
+            Error = raw.Error
+        };
+
+        if (raw.Success && !string.IsNullOrWhiteSpace(raw.Data))
+        {
+            try
+            {
+                result.Data = JsonSerializer.Deserialize<UploadResultDto>(raw.Data, JsonOptions);
+            }
+            catch (JsonException)
+            {
+                result.Success = false;
+                result.Error = "The server returned data in an unexpected format.";
+            }
+        }
+
+        return result;
+    }
+
     // Clears the stored API cookies (used on logout).
     public void ClearApiSession() =>
         _accessor.HttpContext?.Session.Remove(CookieKey);
@@ -94,7 +132,8 @@ public class ApiService
         return result;
     }
 
-    private async Task<ApiResult<string>> SendRawAsync(HttpMethod method, string url, object? body = null)
+    private async Task<ApiResult<string>> SendRawAsync(HttpMethod method, string url,
+    object? body = null, HttpContent? content = null)
     {
         try
         {
@@ -108,7 +147,11 @@ public class ApiService
                 request.Headers.Add("Cookie", cookie);
             }
 
-            if (body != null)
+            if (content != null)
+            {
+                request.Content = content;
+            }
+            else if (body != null)
             {
                 request.Content = new StringContent(
                     JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json");

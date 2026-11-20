@@ -63,9 +63,12 @@ public class OrganiserController : AppController
     public IActionResult CreateEvent() => View(new EventRequestDto());
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateEvent(EventRequestDto model)
+    public async Task<IActionResult> CreateEvent(EventRequestDto model, IFormFile? bannerFile)
     {
         if (!ModelState.IsValid) return View(model);
+
+        // Upload the banner (through the API) before saving the event.
+        if (!await TryAttachBannerAsync(model, bannerFile)) return View(model);
 
         var result = await _api.PostForStatusAsync("api/events", model);
 
@@ -116,10 +119,13 @@ public class OrganiserController : AppController
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditEvent(int id, EventRequestDto model)
+    public async Task<IActionResult> EditEvent(int id, EventRequestDto model, IFormFile? bannerFile)
     {
         ViewBag.EventId = id;
         if (!ModelState.IsValid) return View(model);
+
+        // Upload a new banner (through the API) if one was chosen.
+        if (!await TryAttachBannerAsync(model, bannerFile)) return View(model);
 
         var result = await _api.PutForStatusAsync($"api/events/{id}", model);
 
@@ -153,5 +159,33 @@ public class OrganiserController : AppController
             TempData["Error"] = result.Error ?? "We could not delete that event.";
 
         return RedirectToAction(nameof(Events));
+    }
+
+    // ---------- Helpers ----------
+
+    // Sends the chosen banner to the API (never to Azure directly) and stores
+    // the returned URL on the model. Returns false if the image was rejected.
+    private async Task<bool> TryAttachBannerAsync(EventRequestDto model, IFormFile? file)
+    {
+        // No new file chosen: keep whatever banner URL the event already has.
+        if (file == null || file.Length == 0) return true;
+
+        var problem = ImageRules.Validate(file);
+        if (problem != null)
+        {
+            ModelState.AddModelError(string.Empty, problem);
+            return false;
+        }
+
+        var upload = await _api.UploadImageAsync("api/uploads/event-banner", file);
+        if (!upload.Success || upload.Data == null)
+        {
+            ModelState.AddModelError(string.Empty,
+                upload.Error ?? "We could not upload the banner image. Please try again.");
+            return false;
+        }
+
+        model.BannerImageUrl = upload.Data.Url;
+        return true;
     }
 }

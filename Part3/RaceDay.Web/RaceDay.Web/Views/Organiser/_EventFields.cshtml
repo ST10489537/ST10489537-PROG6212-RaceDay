@@ -39,5 +39,17 @@
     </div>
 </div>
 
-@* Keeps an existing banner when editing. The upload control is added with Azure Blob Storage. *@
+<div class="mb-3">
+    <label class="form-label">Event banner image (optional)</label>
+    @if (!string.IsNullOrWhiteSpace(Model.BannerImageUrl))
+    {
+        <div class="mb-2">
+            <img src="@Model.BannerImageUrl" alt="Current banner" class="rounded" style="max-height:140px;" />
+        </div>
+    }
+    <input type="file" name="bannerFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+    <div class="form-text">JPG, PNG or WEBP, up to 5 MB. Choosing a new image replaces the current one.</div>
+</div>
+
+@* Keeps the existing banner URL when no new file is chosen. *@
 <input asp-for="BannerImageUrl" type="hidden" />
